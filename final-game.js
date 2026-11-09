@@ -1,53 +1,63 @@
-/* ajustes localizados del minijuego final; la logica principal sigue en game.js :3 */
+/* puntuacion y reacciones del mini juego final; deja al juego original manejar niveles/vidas :3 */
 (function(){
   var puntos=0,activo=false,frases={
     peter:['Auchh q t pasa!!','Ayyyy q me pegas enferma','alesikopata respeta'],
     flowey:['oye q me pegas sikopata','ayduda hay una pepinense aki','aaaaaa me duele','tienes q darle a los pepinos x cierto ehhh']
-  };
-  var turnos={peter:0,flowey:0};
-  function textoAleatorio(tipo){var lista=frases[tipo],t=lista[turnos[tipo]%lista.length];turnos[tipo]++;return t}
-  function score(){var nodo=document.querySelector('.mz-score');if(nodo)nodo.firstChild.textContent='puntos: '+puntos}
-  function adornar(){
-    var juego=document.querySelector('.mz');if(!juego)return;
-    var top=juego.querySelector('.mz-top');if(!top)return;
-    if(!top.querySelector('.mz-score')){
-      if(!activo){puntos=0;turnos.peter=turnos.flowey=0;activo=true}
-      var s=document.createElement('div');s.className='mz-score';s.appendChild(document.createTextNode('puntos: '+puntos));
-      var tip=document.createElement('small');tip.textContent='pepino +1 · Peter/Flowey −1';s.appendChild(tip);top.appendChild(s);
+  },turnos={peter:0,flowey:0};
+
+  function frase(tipo){var a=frases[tipo],t=a[turnos[tipo]%a.length];turnos[tipo]++;return t}
+  function score(){
+    var s=document.querySelector('.mz-score');if(!s)return;
+    var v=s.querySelector('span');if(v)v.textContent=String(puntos);
+  }
+  function reaction(cell,text,kind){
+    var b=document.createElement('div');b.className='mz-reaction '+kind;b.textContent=text;cell.appendChild(b);
+    setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b)},1350);
+  }
+  function startRound(root){
+    var cat=root.querySelector('.mz-cat.big');
+    if(cat&&!cat.getAttribute('data-score-reset')){
+      puntos=0;turnos.peter=turnos.flowey=0;activo=true;cat.setAttribute('data-score-reset','si');
     }
-    juego.querySelectorAll('.mz-i.gold').forEach(function(im){
-      if(im.getAttribute('data-pepino-listo'))return;
-      im.setAttribute('data-pepino-listo','si');im.src='assets/image16.webp';im.alt='pepino dorado: +3 puntos';
+    var top=root.querySelector('.mz-top');if(!top)return;
+    if(!top.querySelector('.mz-score')){
+      var box=document.createElement('div');box.className='mz-score';
+      box.innerHTML='<small>pepinos</small><span>'+puntos+'</span>';
+      top.appendChild(box);
+    }
+    root.querySelectorAll('.mz-i.gold').forEach(function(im){
+      im.classList.remove('gold');im.classList.add('pk');im.src='assets/image16.webp';im.alt='pepino';
     });
     score();
   }
-  document.addEventListener('pointerdown',function(e){
-    var campo=e.target&&e.target.closest?e.target.closest('.mz-field'):null;
-    var celda=e.target&&e.target.closest?e.target.closest('.mz-cell'):null;
-    if(!campo||!celda)return;
-    var im=celda.querySelector('.mz-i');if(!im)return;
-    var tipo=im.classList.contains('peter')?'peter':im.classList.contains('flowey')?'flowey':null;
-    if(!tipo)return;
-    /* evita perder una vida por error: el personaje te quita un punto y suelta una frase */
+  function handleTap(e){
+    var field=e.target&&e.target.closest?e.target.closest('.mz-field'):null;
+    var cell=e.target&&e.target.closest?e.target.closest('.mz-cell'):null;
+    if(!field||!cell||!activo)return;
+    var item=cell.querySelector('.mz-i');if(!item)return;
+    var type=item.classList.contains('flowey')?'flowey':item.classList.contains('peter')?'peter':'pepino';
+    if(type==='pepino'){
+      if(item.dataset.scoreHit)return;
+      item.dataset.scoreHit='si';puntos++;score();reaction(cell,'+1','good');
+      return; /* deja pasar el toque para q el minijuego cuente el pepino y cambie de nivel */
+    }
+    if(item.dataset.scoreHit)return;
+    item.dataset.scoreHit='si';puntos=Math.max(0,puntos-1);score();reaction(cell,frase(type),'danger');
+    /* el juego original aplica su penalidad de vida; parar esta propagacion evita doble golpe */
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-    puntos--;score();im.classList.add('hit');
-    var frase=document.createElement('div');frase.className='mz-reaction';frase.textContent=textoAleatorio(tipo);celda.appendChild(frase);
-    setTimeout(function(){if(frase.parentNode)frase.parentNode.removeChild(frase)},1700);
-    var f=tipo==='peter'?220:520;try{var a=new(window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=f;g.gain.value=.045;o.connect(g);g.connect(a.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.12);o.stop(a.currentTime+.13);o.onended=function(){a.close()}}catch(_e){}
-  },true);
-  document.addEventListener('pointerdown',function(e){
-    var celda=e.target&&e.target.closest?e.target.closest('.mz-cell'):null;
-    if(!celda||!document.querySelector('.mz'))return;
-    var im=celda.querySelector('.mz-i');if(!im||im.classList.contains('peter')||im.classList.contains('flowey'))return;
-    var bonus=im.classList.contains('gold')?3:1;
-    /* el click normal del juego conserva el avance de nivel; el puntaje de pepinos va aparte */
-    puntos+=bonus;score();
-  },true);
-  var obs=new MutationObserver(function(){
-    adornar();
-    if(activo&&!document.querySelector('.mz'))activo=false;
-  });
-  obs.observe(document.body,{childList:true,subtree:true});
-  document.addEventListener('DOMContentLoaded',adornar);
-  adornar();
+    var lives=document.querySelectorAll('.mz-lives img'),liveCount=0;
+    lives.forEach(function(h){if(h.style.opacity!=='0.2')liveCount++});
+    if(liveCount<=1){var retry=document.querySelector('.mz .btn.big');if(retry)setTimeout(function(){retry.click()},700)}
+    else{var m=document.querySelector('.mz-info');if(m)m.textContent='−1 punto! evita a '+(type==='peter'?'Peter':'Flowey')}
+  }
+  function observe(){
+    var root=document.querySelector('.mz');
+    if(root)startRound(root);
+    if(document.body&&!document.body.dataset.finalMinigameListener){
+      document.body.dataset.finalMinigameListener='si';document.addEventListener('pointerdown',handleTap,true);
+    }
+  }
+  var mo=new MutationObserver(observe);
+  mo.observe(document.documentElement,{childList:true,subtree:true});
+  observe();
 })();
