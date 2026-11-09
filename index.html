@@ -8,13 +8,21 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <filter id="wob" x="-4%" y="-4%" width="108%" height="108%">
     <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="n"/>
-    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.2"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5"/>
   </filter>
 </svg>
+<style>
+  /* letras pixel: dejalas nitidas, el efecto chueco queda en los adornos */
+  #app .box,#app .btn,#app .big-name,#app h1{filter:none}
+  #app h1{ text-shadow:2px 2px 0 var(--grid);text-rendering:geometricPrecision }
+  #app .btn,#app .big-name{font-weight:600;text-rendering:geometricPrecision}
+  button{touch-action:manipulation}
+  @media(prefers-reduced-motion:reduce){.flw.shake,.lg,.mz-cat,.mz-i,.mz-mal{animation:none!important;transition:none!important}}
+</style>
 
 <div class="win">
   <div class="title"><span>sin título - Paint</span><div class="wb"><i>_</i><i>□</i><i>×</i></div></div>
-  <div class="menu"><span>Archivo</span><span>Edición</span><span>Ver</span><span class="sp2"></span><button type="button" class="mbtn" id="fsb">pantalla completa</button><button type="button" class="mbtn" id="music">♪ musika: sí</button></div>
+  <div class="menu"><span>Archivo</span><span>Edición</span><span>Ver</span><span class="sp2"></span><button type="button" class="mbtn" id="fsb">pantalla completa</button><button type="button" class="mbtn" id="mus">♪ musika: sí</button></div>
   <div class="tools" id="tools"></div>
   <div class="paper" id="paper"><canvas id="bd"></canvas><div id="app"></div></div>
   <div class="palette"><div class="cols" id="cols"></div></div>
