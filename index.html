@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="fixes.css"></head><body>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="question-style.css"></head><body>
 
 <title>ale pepino the game</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -11,14 +11,6 @@
     <feDisplacementMap in="SourceGraphic" in2="n" scale="3.5"/>
   </filter>
 </svg>
-<style>
-  /* letras pixel: dejalas nitidas, el efecto chueco queda en los adornos */
-  #app .box,#app .btn,#app .big-name,#app h1{filter:none}
-  #app h1{ text-shadow:2px 2px 0 var(--grid);text-rendering:geometricPrecision }
-  #app .btn,#app .big-name{font-weight:600;text-rendering:geometricPrecision}
-  button{touch-action:manipulation}
-  @media(prefers-reduced-motion:reduce){.flw.shake,.lg,.mz-cat,.mz-i,.mz-mal{animation:none!important;transition:none!important}}
-</style>
 
 <div class="win">
   <div class="title"><span>sin título - Paint</span><div class="wb"><i>_</i><i>□</i><i>×</i></div></div>
@@ -35,7 +27,7 @@
 <canvas id="fx" aria-hidden="true"></canvas>
 <audio id="bgm" loop preload="auto" src="assets/audio01.mp3"></audio>
 
+
 <script src="game.js"></script>
-<script src="fixes.js"></script>
 
 </body></html>

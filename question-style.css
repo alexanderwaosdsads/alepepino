@@ -1,0 +1,3 @@
+/* solo la pregunta de inicio: blanca y centrada; sin cambiar el resto del juego */
+#app h1{color:#fff!important;text-align:center;display:block;width:100%;margin:0 auto;text-shadow:2px 2px 0 rgba(0,0,0,.3);filter:none}
+#app h1 span{color:#fff!important}
