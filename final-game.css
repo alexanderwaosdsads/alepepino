@@ -1,4 +1,4 @@
-/* mini juego d los topos: jardin ordenado, pepinos buenos y Peter/Flowey traviesos :3 */
+/* minijuego final: sin caca, Peter y Flowey salen del hueco :3 */
 .mz{padding:clamp(22px,4vw,42px) 10px 14px;gap:12px;min-height:0}
 .mz-top{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:3px solid #24451f;border-radius:16px;background:linear-gradient(180deg,#fffae6,#ffebaa);box-shadow:0 4px 0 #24451f,0 8px 0 rgba(0,0,0,.08)}
 .mz-lives{display:flex;align-items:center;gap:4px;padding:3px 8px;border:2px solid #f4b0c4;border-radius:12px;background:rgba(255,255,255,.8)}
@@ -13,19 +13,23 @@
 .mz-i{position:absolute;left:50%;bottom:0;width:auto;height:auto;max-width:94%;max-height:104%;transform:translate(-50%,110%);transition:transform .14s ease-out;pointer-events:none;user-select:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.22));will-change:transform}
 .mz-i.up{transform:translate(-50%,6%)}
 .mz-i.hit{transform:translate(-50%,48%) scaleY(.55) rotate(-5deg);opacity:.75;transition:transform .08s}
-.mz-i.pk{max-height:110%}
+.mz-i.pk{max-height:110%;image-rendering:pixelated}
 .mz-i.flowey{max-height:100%}
-.mz-i.peter{max-height:115%}
+.mz-i.peter{max-height:115%;max-width:100%;object-fit:contain}
+.mz-cat .bubl{position:absolute;left:50%;right:auto;bottom:calc(100% + 14px);top:auto;transform:translateX(-50%);width:max-content;max-width:min(86vw,300px);padding:10px 12px;border:3px solid #171717;border-radius:14px;background:#fffdf1;color:#171717;font-size:clamp(15px,3.8vw,20px);line-height:1.15;text-align:center;box-shadow:4px 5px 0 rgba(0,0,0,.2);z-index:12}
+.mz-cat .bubl::before{top:calc(100% - 3px);margin-left:-13px;width:28px;height:24px}
+.mz-cat .bubl::after{top:calc(100% - 7px);margin-left:-9px;width:20px;height:18px}
+.mz-cat.small .bubl{left:auto;right:50%;bottom:calc(100% + 12px);top:auto;transform:translateX(50%);margin:0;max-width:min(82vw,260px);font-size:16px}
+.mz-cat.small .bubl::before,.mz-cat.small .bubl::after{display:block}
 .mz-reaction{position:absolute;z-index:10;left:50%;bottom:68%;transform:translateX(-50%);padding:7px 10px;border:3px solid #1d1d1d;border-radius:12px;background:#fffdf6;color:#171717;font-size:clamp(12px,2.8vw,18px);line-height:1.1;text-align:center;box-shadow:4px 5px 0 rgba(0,0,0,.15);pointer-events:none;animation:mz-reaccion .18s ease-out}
 .mz-reaction::after{content:'';position:absolute;top:100%;left:50%;width:11px;height:11px;background:#fffdf6;border-right:3px solid #1d1d1d;border-bottom:3px solid #1d1d1d;transform:translate(-50%,-6px) rotate(45deg)}
 .mz-reaction.good{border-color:#227332;background:#f1ffe7;color:#174e22}
 .mz-reaction.good::after{background:#f1ffe7;border-color:#227332}
 .mz-reaction.danger{border-color:#972943;background:#fff0f2;color:#68182d}
 .mz-reaction.danger::after{background:#fff0f2;border-color:#972943}
-.mz-fl{position:absolute;left:50%;top:20%;transform:translateX(-50%);z-index:6;pointer-events:none;font-family:"VT323","Courier New",monospace;font-size:32px;color:#fff;text-shadow:2px 2px 0 #2a6a30,-1px -1px 0 #2a6a30;animation:mz-float .7s ease-out forwards}
+.mz-fl{z-index:12;font-size:34px;color:#fff;text-shadow:2px 2px 0 #245222,-1px -1px 0 #245222}
 .mz-cat.big{height:min(220px,38vw)}
 .mz-cat.small{height:clamp(58px,12vw,84px)}
-.mz-cat .bubl{border-radius:16px;padding:10px 12px;box-shadow:4px 5px 0 rgba(0,0,0,.2)}
 @keyframes mz-reaccion{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.94)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
-@keyframes mz-float{0%{opacity:0;transform:translateX(-50%) translateY(0) scale(.84)}15%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-20px) scale(1.1)}}
 @media(max-width:420px){.mz-top{padding:8px 10px}.mz-lives img{height:20px}.mz-info{font-size:12px}.mz-score{min-width:92px;font-size:16px}.mz-field{border-width:3px}.mz-reaction{max-width:150px}}
+@media(prefers-reduced-motion:reduce){.mz-i,.mz-reaction{animation:none;transition:none}}

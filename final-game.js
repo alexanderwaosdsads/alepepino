@@ -1,63 +1,44 @@
-/* puntuacion y reacciones del mini juego final; deja al juego original manejar niveles/vidas :3 */
+/* puntuacion y personajes del minijuego final; niveles y vidas originales se conservan :3 */
 (function(){
-  var puntos=0,activo=false,frases={
+  var puntos=0,frases={
     peter:['Auchh q t pasa!!','Ayyyy q me pegas enferma','alesikopata respeta'],
     flowey:['oye q me pegas sikopata','ayduda hay una pepinense aki','aaaaaa me duele','tienes q darle a los pepinos x cierto ehhh']
-  },turnos={peter:0,flowey:0};
-
-  function frase(tipo){var a=frases[tipo],t=a[turnos[tipo]%a.length];turnos[tipo]++;return t}
-  function score(){
-    var s=document.querySelector('.mz-score');if(!s)return;
-    var v=s.querySelector('span');if(v)v.textContent=String(puntos);
-  }
-  function reaction(cell,text,kind){
-    var b=document.createElement('div');b.className='mz-reaction '+kind;b.textContent=text;cell.appendChild(b);
-    setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b)},1350);
-  }
-  function startRound(root){
-    var cat=root.querySelector('.mz-cat.big');
-    if(cat&&!cat.getAttribute('data-score-reset')){
-      puntos=0;turnos.peter=turnos.flowey=0;activo=true;cat.setAttribute('data-score-reset','si');
+  },turnos={peter:0,flowey:0},ultimoJuego=null;
+  function score(){var s=document.querySelector('.mz-score span');if(s)s.textContent=String(puntos)}
+  function reaction(cell,text,kind){var b=document.createElement('div');b.className='mz-reaction '+kind;b.textContent=text;cell.appendChild(b);setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b)},1350)}
+  function refresh(){
+    var root=document.querySelector('.mz');if(!root)return;
+    if(root!==ultimoJuego){
+      ultimoJuego=root;
+      if(root.querySelector('.mz-cat.big')){puntos=0;turnos.peter=turnos.flowey=0}
+      var top=root.querySelector('.mz-top');
+      if(top&&!top.querySelector('.mz-score')){var s=document.createElement('div');s.className='mz-score';s.innerHTML='<small>pepinos</small><span>'+puntos+'</span>';top.appendChild(s)}
     }
-    var top=root.querySelector('.mz-top');if(!top)return;
-    if(!top.querySelector('.mz-score')){
-      var box=document.createElement('div');box.className='mz-score';
-      box.innerHTML='<small>pepinos</small><span>'+puntos+'</span>';
-      top.appendChild(box);
-    }
-    root.querySelectorAll('.mz-i.gold').forEach(function(im){
-      im.classList.remove('gold');im.classList.add('pk');im.src='assets/image16.webp';im.alt='pepino';
+    root.querySelectorAll('.mz-i.gold').forEach(function(img){
+      img.classList.remove('gold');img.classList.add('pk');img.src='assets/image16.webp';img.alt='pepino';
+      var cell=img.closest('.mz-cell');if(cell&&cell.item)cell.item.type='pk';
     });
+    root.querySelectorAll('.mz-i.peter').forEach(function(img){img.src='assets/image05.png';img.alt='Peter';});
     score();
   }
-  function handleTap(e){
+  document.addEventListener('pointerdown',function(e){
     var field=e.target&&e.target.closest?e.target.closest('.mz-field'):null;
     var cell=e.target&&e.target.closest?e.target.closest('.mz-cell'):null;
-    if(!field||!cell||!activo)return;
-    var item=cell.querySelector('.mz-i');if(!item)return;
-    var type=item.classList.contains('flowey')?'flowey':item.classList.contains('peter')?'peter':'pepino';
+    if(!field||!cell||cell.__mazoHit)return;
+    var img=cell.querySelector('.mz-i');if(!img)return;
+    var type=img.classList.contains('flowey')?'flowey':img.classList.contains('peter')?'peter':'pepino';
     if(type==='pepino'){
-      if(item.dataset.scoreHit)return;
-      item.dataset.scoreHit='si';puntos++;score();reaction(cell,'+1','good');
-      return; /* deja pasar el toque para q el minijuego cuente el pepino y cambie de nivel */
+      cell.__mazoHit=true;puntos++;score();reaction(cell,'+1','good');
+      setTimeout(function(){cell.__mazoHit=false},300);
+      return; /* deja que el minijuego original procese el golpe al pepino */
     }
-    if(item.dataset.scoreHit)return;
-    item.dataset.scoreHit='si';puntos=Math.max(0,puntos-1);score();reaction(cell,frase(type),'danger');
-    /* el juego original aplica su penalidad de vida; parar esta propagacion evita doble golpe */
+    cell.__mazoHit=true;puntos=Math.max(0,puntos-1);score();
+    var list=frases[type],text=list[turnos[type]++%list.length];reaction(cell,text,'danger');
+    img.classList.add('hit');
+    var hitSound=function(){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;var a=new C(),o=a.createOscillator(),g=a.createGain();o.type='square';o.frequency.value=type==='peter'?220:520;g.gain.value=.035;o.connect(g);g.connect(a.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.12);o.stop(a.currentTime+.13);o.onended=function(){a.close()}}catch(_){}};hitSound();
+    /* evita q el golpe erroneo llegue al listener del mazo; vida no se pierde, baja el puntaje */
     e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-    var lives=document.querySelectorAll('.mz-lives img'),liveCount=0;
-    lives.forEach(function(h){if(h.style.opacity!=='0.2')liveCount++});
-    if(liveCount<=1){var retry=document.querySelector('.mz .btn.big');if(retry)setTimeout(function(){retry.click()},700)}
-    else{var m=document.querySelector('.mz-info');if(m)m.textContent='−1 punto! evita a '+(type==='peter'?'Peter':'Flowey')}
-  }
-  function observe(){
-    var root=document.querySelector('.mz');
-    if(root)startRound(root);
-    if(document.body&&!document.body.dataset.finalMinigameListener){
-      document.body.dataset.finalMinigameListener='si';document.addEventListener('pointerdown',handleTap,true);
-    }
-  }
-  var mo=new MutationObserver(observe);
-  mo.observe(document.documentElement,{childList:true,subtree:true});
-  observe();
+    setTimeout(function(){cell.__mazoHit=false},350);
+  },true);
+  var mo=new MutationObserver(refresh);mo.observe(document.documentElement,{childList:true,subtree:true});refresh();
 })();
